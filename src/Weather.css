@@ -1,14 +1,19 @@
 .clear-sky {
-  background-image: url('https://images.unsplash.com/photo-1583705325465-ff8377ff58bc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1091&q=80');
+  background-image: url('./assets/images/clear-sky.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
-
 .few-clouds {
-  background-image: url('https://images.unsplash.com/photo-1599740494531-f3f82773c136?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=967&q=80');
+  background-image: url('./assets/images/few-clouds.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .scattered-clouds {
-  background-image: url('https://images.unsplash.com/photo-1581150257735-1c93ea8306ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80');
+  background-image: url('./assets/images/scattered-clouds.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .broken-clouds {
@@ -16,19 +21,27 @@
 }
 
 .showering-rain {
-  background-image: url('https://images.unsplash.com/photo-1470432581262-e7880e8fe79a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1052&q=80');
+  background-image: url('./assets/images/showering-rain.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .heavy-rain {
-  background-image: url('https://images.unsplash.com/photo-1417008914239-59b898b49382?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1064&q=80');
+  background-image: url('./assets/images/heavy-rain.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .mist {
-  background-image: url('https://images.unsplash.com/photo-1438803235109-d737bc3129ec?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=966&q=80');
+  background-image: url('./assets/images/mist.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .fog {
-  background-image: url('https://images.unsplash.com/photo-1479476437642-f85d89e5ad7b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80');
+  background-image: url('./assets/images/fog.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .smoke {
@@ -36,13 +49,19 @@
 }
 
 .thunderstorm {
-  background-image: url('https://images.unsplash.com/photo-1570550183567-c670854993a9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1189&q=80');
+  background-image: url('./assets/images/thunderstorm.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .tornado {
-  background-image: url('https://images.unsplash.com/flagged/photo-1557952853-89d464e66feb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1193&q=80');
+  background-image: url('./assets/images/tornado.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .snowfall {
-  background-image: url('https://images.unsplash.com/photo-1593376527070-b4bcb3d24e0d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1055&q=80');
+  background-image: url('./assets/images/snowfall.jpg');
+  background-size: cover;
+  background-position: center;
 }

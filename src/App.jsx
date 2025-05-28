@@ -162,9 +162,9 @@ const App = () => {
                 miniview={minimalView}
                 name={placeName}
               />
-              {!minimalView && <HourlyUpdates data={hourlyUpdates} timings={sunTimings} />}
-              {!minimalView && <WeeklyUpdates data={dailyUpdates} />}
-              {!minimalView && (
+              <HourlyUpdates data={hourlyUpdates} timings={sunTimings} />
+              <WeeklyUpdates data={dailyUpdates} />
+              {(
                 <div className="footer">
                   Data provided by{" "}
                   <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer">

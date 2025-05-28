@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import DataService from '../api/dataService';
 
-const HourlyUpdates = ({ data, timings }) => {
+
+const HourlyUpdates = ({ data, timings, viewMode = 'grid' }) => {
   const [nextHours, setNextHours] = useState([]);
-  const [tempUnit] = useState('°c');
   const [sunTimings, setSunTimings] = useState([]);
-  const [activeHour, setActiveHour] = useState(null);
+  const [activeTab, setActiveTab] = useState('scroll');
+  const tempUnit = '°c';
 
   useEffect(() => {
     const formatted = data.map((hour) => ({
@@ -14,6 +14,7 @@ const HourlyUpdates = ({ data, timings }) => {
       ...hour,
     }));
     setNextHours(formatted);
+
     const t = timings.map((t) => ({
       d: new Date(t * 1000).toLocaleDateString('en-US'),
       t: new Date(t * 1000).toLocaleTimeString('en-US'),
@@ -32,116 +33,130 @@ const HourlyUpdates = ({ data, timings }) => {
     return false;
   };
 
-  // Calculate temperature extremes for the gradient
-  const temps = data.map(h => h.temp);
-  const maxTemp = Math.max(...temps);
-  const minTemp = Math.min(...temps);
+  // Group hours by date (only used for grid mode)
+  const groupedByDate = nextHours.reduce((acc, hour) => {
+    const date = hour.dateTime.date;
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(hour);
+    return acc;
+  }, {});
 
-  return (
-    <div className="relative p-6 rounded-3xl mb-6 bg-gradient-to-br from-indigo-900/30 to-violet-900/30 border border-white/10 shadow-lg overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden opacity-20">
-        {[...Array(8)].map((_, i) => (
-          <div 
-            key={i}
-            className="absolute rounded-full bg-white/10"
-            style={{
-              width: Math.random() * 100 + 50,
-              height: Math.random() * 100 + 50,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              filter: 'blur(40px)'
-            }}
-          />
-        ))}
-      </div>
-
-      <h3 className="relative text-white text-2xl font-medium mb-6 tracking-tight">
-        Hourly Forecast
-        <span className="block text-sm font-light text-white/60 mt-1">Next 48 hours</span>
-      </h3>
-
-      {/* Timeline indicator */}
-      <div className="relative h-1 bg-white/10 rounded-full mb-6 overflow-hidden">
-        <motion.div 
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-400 to-blue-500"
-          initial={{ width: 0 }}
-          animate={{ width: `${(100 / 48) * Math.min(data.length, 48)}%` }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        />
-      </div>
-
-      <div className="relative flex overflow-x-auto pb-6 -mx-4 scrollbar-hide">
-        <div className="flex space-x-4 px-4">
-          {nextHours.map((hour, i) => {
-            const isDark = isDarkHour(hour.dt);
-            const tempPercentage = ((hour.temp - minTemp) / (maxTemp - minTemp)) * 100;
-            const bgColor = isDark 
-              ? `rgba(79, 70, 229, ${0.3 + (tempPercentage/200)})` 
-              : `rgba(56, 182, 255, ${0.2 + (tempPercentage/200)})`;
-
+  const renderScrollView = () => (
+    <div className="relative">
+      <div className="scroll-container flex overflow-x-auto pb-4 -mx-2 scrollbar-hide">
+        <div className="flex space-x-3 px-2">
+          {nextHours.map((hour) => {
+            const dark = isDarkHour(hour.dt);
+            const isCurrentHour = new Date(hour.dt * 1000).getHours() === new Date().getHours();
+            
             return (
-              <motion.div
-                key={`hr${i + 1}`}
-                className={`flex-shrink-0 w-24 p-4 rounded-2xl flex flex-col items-center cursor-pointer transition-all ${activeHour === i ? 'scale-105' : ''}`}
-                style={{ 
-                  background: bgColor,
-                  border: isDark ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid rgba(56, 182, 255, 0.3)',
-                  backdropFilter: 'blur(8px)'
-                }}
-                whileHover={{ scale: 1.05 }}
-                onClick={() => setActiveHour(i === activeHour ? null : i)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.02 }}
+              <div
+                key={hour.dt}
+                className={`glass-card flex flex-col items-center w-28 p-4 rounded-2xl backdrop-blur-sm transition-all duration-200 cursor-pointer
+                  ${dark ? 'bg-black/30 hover:bg-black/40' : 'bg-white/10 hover:bg-white/20'}
+                  ${isCurrentHour ? 'ring-2 ring-white/50' : ''}`}
+                title={`${hour.dateTime.time} — ${hour.weather[0].description}`}
               >
-                <div className={`text-center text-sm mb-2 font-medium ${
-                  isDark ? 'text-indigo-100' : 'text-cyan-50'
-                }`}>
-                  {hour.dateTime.time.split(':')[0]}h
+                <div className="text-center text-white/80 text-sm mb-1 font-medium">
+                  {hour.dateTime.time}
                 </div>
-                
-                <div className="relative w-12 h-12 mb-2">
+                <div className="text-xs text-white/60 mb-2">
+                  {hour.dateTime.date}
+                </div>
+                <div className="flex justify-center mb-2">
                   <img
-                    className="w-full h-full object-contain"
+                    className="w-12 h-12"
                     src={`https://openweathermap.org/img/wn/${hour.weather[0].icon}@2x.png`}
                     alt={hour.weather[0].main}
+                    loading="lazy"
                   />
                 </div>
-                
-                <div className={`text-center text-lg font-bold ${
-                  isDark ? 'text-white' : 'text-white'
-                }`}>
+                <div className="text-center text-white font-semibold text-lg mb-1">
                   {Math.round(hour.temp)}{tempUnit}
                 </div>
-                
-                {/* Expanded details */}
-                {activeHour === i && (
-                  <motion.div 
-                    className="mt-3 pt-3 border-t border-white/20 w-full text-center"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                  >
-                    <div className="text-xs text-white/80 mb-1">{hour.weather[0].description}</div>
-                    <div className="flex justify-between text-xs text-white/60">
-                      <span>💧 {hour.humidity}%</span>
-                      <span>🌬️ {hour.wind_speed}m/s</span>
-                    </div>
-                  </motion.div>
-                )}
-              </motion.div>
+                <div className="text-xs text-white/60">
+                  {hour.weather[0].main}
+                </div>
+              </div>
             );
           })}
         </div>
       </div>
+    </div>
+  );
 
-      {/* Temperature scale legend */}
-      <div className="relative flex justify-between items-center mt-4 text-xs text-white/60">
-        <span>Low: {Math.round(minTemp)}{tempUnit}</span>
-        <div className="flex-1 mx-4 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-500" />
-        <span>High: {Math.round(maxTemp)}{tempUnit}</span>
+  const renderGridView = () => (
+    <>
+      {Object.entries(groupedByDate).map(([date, hours]) => (
+        <section key={date} className="mb-8 last:mb-0">
+          <div className="flex items-center mb-4">
+            <h4 className="text-white/80 text-lg font-medium">
+              {new Date(date).toLocaleDateString('en-US', { weekday: 'long' })}
+            </h4>
+            <span className="text-white/50 text-sm ml-2">
+              {new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {hours.map((hour) => {
+              const dark = isDarkHour(hour.dt);
+              const isCurrentHour = new Date(hour.dt * 1000).getHours() === new Date().getHours();
+              
+              return (
+                <div
+                  key={hour.dt}
+                  className={`glass-card p-4 rounded-xl backdrop-blur-sm transition-all duration-200 cursor-pointer
+                    ${dark ? 'bg-black/30 hover:bg-black/40' : 'bg-white/10 hover:bg-white/20'}
+                    ${isCurrentHour ? 'ring-2 ring-white/50' : ''}`}
+                  title={`${hour.dateTime.time} — ${hour.weather[0].description}`}
+                >
+                  <div className="text-center text-white/80 text-sm mb-2 font-medium">
+                    {hour.dateTime.time}
+                  </div>
+                  <div className="flex justify-center mb-2">
+                    <img
+                      className="w-12 h-12"
+                      src={`https://openweathermap.org/img/wn/${hour.weather[0].icon}@2x.png`}
+                      alt={hour.weather[0].main}
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="text-center text-white font-semibold text-lg mb-1">
+                    {Math.round(hour.temp)}{tempUnit}
+                  </div>
+                  <div className="text-xs text-white/60 text-center">
+                    {hour.weather[0].main}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </>
+  );
+
+  return (
+    <div className="glass-section p-6 rounded-3xl mb-6 ">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-white/80 text-2xl font-medium">Hourly Forecast</h3>
+        <div className="flex bg-white/10 rounded-lg p-1">
+          <button
+            onClick={() => setActiveTab('grid')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeTab === 'grid' ? 'bg-white/20 text-white' : 'text-white/70 hover:text-white'}`}
+          >
+            Grid
+          </button>
+          <button
+            onClick={() => setActiveTab('scroll')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${activeTab === 'scroll' ? 'bg-white/20 text-white' : 'text-white/70 hover:text-white'}`}
+          >
+            Timeline
+          </button>
+        </div>
       </div>
+      
+      {activeTab === 'grid' ? renderGridView() : renderScrollView()}
     </div>
   );
 };
